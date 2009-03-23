@@ -42,28 +42,40 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	{
 		global $DSP, $LANG, $DB;
 		$LANG->fetch_language_file('ff_vz_upload');
-
-		$out = '';
 	
-	
+		// Initialize a new instance of SettingsDisplay
+		$SD = new Fieldframe_SettingsDisplay();
+		
+		$out = $SD->block('field_settings');
+		
 		// Get the file upload destinations
 		$results = $DB->query("SELECT id, name FROM exp_upload_prefs ORDER BY name ASC");
 		
 		if ($results->num_rows > 0)
 		{
 			// If there are any upload destinations, put them in a select box...
-			$out .= '<label for="vz_upload_dest">'.$LANG->line('select_destination').':</label> ';
-			$out .= '<select name="vz_upload_dest" class="select">';
+			$dests = array();
 			foreach($results->result as $row)
 			{
-				$out .= '<option value='.$row['id'].'>'.$row['name'].'</option>';    
+				$dests += array($row['id'] => $row['name']);    
 			}
-			$out .= '</select>';
+			$out .= $SD->row(array(
+							$SD->label('select_destination'),
+							$SD->select('vz_upload_dest', '', $dests)
+							));
 		}
 		else
 		{
-			$out .= '<p class="hightlight">'.$LANG->line('no_destinations_found').'</p>';
+			$out .= '<p class="highlight">'.$LANG->line('no_destinations_found').'</p>';
 		}
+		
+		// Allow multiple uploads?
+		$out .= $SD->row(array(
+						'<label for="vz_upload_multiple" class="defaultBold">'.$LANG->line('multiple_uploads').'</label>',
+						'<input type="checkbox" name="vz_upload_multiple" id="vz_upload_multiple" />'
+						));
+		
+		$out .= $SD->block_c();
 
 		// Return the settings block
 		return array('cell2' => $out);
