@@ -29,7 +29,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'cp_jquery' => '1.1'
 	);
     
-	var $hooks = array('publish_form_headers');
+	//var $hooks = array('publish_form_headers');
 
 
     /**
@@ -61,7 +61,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			}
 			$out .= $SD->row(array(
 							$SD->label('select_destination'),
-							$SD->select('vz_upload_dest', '', $dests)
+							$SD->select('vz_upload_dest', '1', $dests)
 							));
 		}
 		else
@@ -92,9 +92,57 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function display_field($field_name, $field_data, $field_settings)
 	{
+		global $DB;
 		
-		return '<input type="file" name="ff_vz_upload_'.$field_name.'" class="vz_upload" />';
+		// Get the upload directory
+		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
+		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
+		// Include the accessory files
+		$this->include_css('uploadify/vz_upload.css');
+		$this->include_js('uploadify/jquery.uploadify.js');
+		$this->insert_js("$(document).ready(function() {
+	$('#vz_upload_".$field_name."').fileUpload({
+		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
+		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
+		'script': '".$script_path."',
+		'folder': '".$upload_path."',
+		'fileDesc': 'Image Files',
+		'fileExt': '*.jpg;*.jpeg;*.gif;*.png',
+		'multi': true,
+		'auto': true,
+		'onError': function (a, b, c, d) {
+         if (d.status == 404)
+            alert('Could not find upload script. Use a path relative to: ".getcwd()."');
+         else if (d.type === 'HTTP')
+            alert('error '+d.type+': '+d.status);
+         else if (d.type ==='File Size')
+            alert(c.name+' '+d.type+' Limit: '+Math.round(d.sizeLimit/1024)+'KB');
+         else
+            alert('error '+d.type+': '+d.text);
+}
+	});
+});
+");
 		
+		$out = '<table>';
+		$out .= '<thead><tr><td>File Name</td><td>Delete</td></tr></thead>';
+		$out .= '<tr><td></td><td><input type="checkbox" name="ff_vz_upload_'.$field_name.'_delete" id="ff_vz_upload_'.$field_name.'_delete" /></td></tr>';
+		$out .= '</table>';
+		$out .= '<input type="file" name="'.$field_name.'" id="vz_upload_'.$field_name.'" />';
+		
+		return $out;
+	}
+
+
+	/**
+	 * Save Field
+	 * 
+	 * @param  string  $field_data		The field's post data
+	 * @param  array  $field_settings	The field settings
+	 */
+	function save_field($field_data, $field_settings)
+	{
+		print_r($field_data);
 	}
 
 }
