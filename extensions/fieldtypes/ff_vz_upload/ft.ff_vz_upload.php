@@ -70,15 +70,16 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		}
 		
 		// Which file types are allowed?
+		$types = isset($field_settings['vz_upload_types']) ? $field_settings['vz_upload_types'] : '*.jpg;*.jpeg;*.png;*.gif';
 		$out .= $SD->row(array(
 						$SD->label('settings_types', 'settings_types_example'),
-						$SD->text('vz_upload_types', '*.jpg;*.jpeg;*.png;*.gif')
+						$SD->text('vz_upload_types', $types)
 						));
-						
+		$multiple = isset($field_settings['vz_upload_multiple']) ? ' checked="checked"' : '';	
 		// Allow multiple uploads?
 		$out .= $SD->row(array(
 						'<label for="vz_upload_multiple" class="defaultBold">'.$LANG->line('settings_multiple_uploads').'</label>',
-						'<input type="checkbox" name="vz_upload_multiple" id="vz_upload_multiple" />'
+						'<input type="checkbox" name="vz_upload_multiple" id="vz_upload_multiple"'.$multiple.' />'
 						));
 		
 		$out .= $SD->block_c();
@@ -103,7 +104,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// Get the upload directory
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
-		
+
 		// Include the accessory files
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
@@ -115,7 +116,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'folder': '".$upload_path."',
 		'fileDesc': 'Image Files',
 		'fileExt': '".$field_settings['vz_upload_types']."',
-		'multi': true,
+		'multi': ".(isset($field_settings['vz_upload_multiple']) ? 'true' : 'false').",
 		'auto': true,
 		'onError': function (a, b, c, d) {
          if (d.status == 404)
