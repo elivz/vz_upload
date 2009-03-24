@@ -60,7 +60,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				$dests += array($row['id'] => $row['name']);    
 			}
 			$out .= $SD->row(array(
-							$SD->label('select_destination'),
+							$SD->label('settings_destination'),
 							$SD->select('vz_upload_dest', '1', $dests)
 							));
 		}
@@ -69,9 +69,15 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			$out .= '<p class="highlight">'.$LANG->line('no_destinations_found').'</p>';
 		}
 		
+		// Which file types are allowed?
+		$out .= $SD->row(array(
+						$SD->label('settings_types', 'settings_types_example'),
+						$SD->text('vz_upload_types', '*.jpg;*.jpeg;*.png;*.gif')
+						));
+						
 		// Allow multiple uploads?
 		$out .= $SD->row(array(
-						'<label for="vz_upload_multiple" class="defaultBold">'.$LANG->line('multiple_uploads').'</label>',
+						'<label for="vz_upload_multiple" class="defaultBold">'.$LANG->line('settings_multiple_uploads').'</label>',
 						'<input type="checkbox" name="vz_upload_multiple" id="vz_upload_multiple" />'
 						));
 		
@@ -97,6 +103,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// Get the upload directory
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
+		
 		// Include the accessory files
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
@@ -107,7 +114,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'script': '".$script_path."',
 		'folder': '".$upload_path."',
 		'fileDesc': 'Image Files',
-		'fileExt': '*.jpg;*.jpeg;*.gif;*.png',
+		'fileExt': '".$field_settings['vz_upload_types']."',
 		'multi': true,
 		'auto': true,
 		'onError': function (a, b, c, d) {

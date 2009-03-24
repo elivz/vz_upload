@@ -8,13 +8,19 @@ $L = array(
 'field_settings' =>
 'Upload Settings',
 
-'select_destination' =>
+'settings_destination' =>
 'Select an upload destination',
 
 'no_destinations_found' =>
 'You do not have any upload destinations set',
 
-'multiple_uploads' =>
+'settings_types' =>
+'Which files types to allow?',
+
+'settings_types_example' =>
+'e.g. *.jpg;*.gif (optional)',
+
+'settings_multiple_uploads' =>
 'Allow multiple uploads?',
 
 ''=>''
