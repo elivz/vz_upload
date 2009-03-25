@@ -19,18 +19,16 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	var $info = array(
 		'name'        => 'VZ Upload',
-		'version'     => 0.5,
+		'version'     => 0.6,
 		'desc'        => 'Upload files',
 		'docs_url'    => 'http://elivz.com'
 	);
 
 	var $requires = array(
-		'ff'        => '0.9.5',
+		'ff'        => '0.9.7',
 		'cp_jquery' => '1.1'
 	);
     
-	//var $hooks = array('publish_form_headers');
-
 
     /**
 	 * Display Field Settings
@@ -104,7 +102,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// List out all the uploaded files in a table
 		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
 		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
-		$uploadCount = -1;
+		$upload_count = -1;
 		if ($field_data) 
 		{
 			// Split the saved data out into an array
@@ -113,13 +111,14 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			// Cycle through each item and put it in a table row
 			foreach ($field_data as $file)
 			{
-				$uploadCount++;
-				$rowSwitch = ($uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$uploadCount."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."[".$uploadCount."][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
+				$upload_count++;
+				$rowSwitch = ($upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
+				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."[".$upload_count."][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
 			}
 		}
 		$out .= '</tbody></table>';
 		$out .= '<div id="'.$field_name.'_btn">You must have JavaScript enabled to upload files.</div>';
+		
 		
 		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
@@ -130,41 +129,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// Include the styles and scripts
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
-		$this->insert_js("jQuery(document).ready(function() {
-	var uploadCount = ".$uploadCount.";
-	if (uploadCount < 0) { jQuery('#".$field_name."_list').hide(); }
-	jQuery('#".$field_name."_btn').fileUpload({
-		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
-		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
-		'buttonImg': FT_URL+'ff_vz_upload/uploadify/button.png',
-		'rollover': true, 'width': 100, 'height': 25,
-		'script': '".$script_path."',
-		'folder': '".$upload_path."',
-		'fileExt': '".$field_settings['vz_upload_types']."',
-		'multi': ".(($allow_multiple) ? "true" : "false" ).",
-		'auto': true,
-		'onComplete': function (event, queueID, fileObj, response, data) {
-			if (jQuery('input[value='+fileObj.name+']', '#".$field_name."_list').length == 0) {
-				uploadCount++;
-				rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-				" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').addClass('highlight').filter(':checkbox').attr('checked', 'checked').hide();" : "") . "
-				jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
-				jQuery('#".$field_name."_list').show();
-			}
-		},
-		'onError': function (a, b, c, d) {
-        	if (d.status == 404)
-				alert('Could not find upload script. Use a path relative to: ".getcwd()."');
-        	else if (d.type === 'HTTP')
-				alert('error '+d.type+': '+d.status);
-        	else if (d.type ==='File Size')
-				alert(c.name+' '+d.type+' Limit: '+Math.round(d.sizeLimit/1024)+'KB');
-			else
-				alert('error '+d.type+': '+d.text);
-			}
-		});
-	});
-");
+		$this->include_js('uploadify/vz_upload.js');
+		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_path.'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
+	
 		
 		return $out;
 	}
