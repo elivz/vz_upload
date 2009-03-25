@@ -178,9 +178,13 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			{
 				// Delete the file
 				$targetFile =  str_replace('//','/',$upload_path.$file[0]);
-				print($targetFile);
+				@unlink($targetFile);
 			}
-			$files[] = $file[0];
+			else
+			{
+				// Add it to the list to save
+				$files[] = $file[0];
+			}
 		}
 		// Convert the array to a space-delimited list
 		return implode(' ', $files);
