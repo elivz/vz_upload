@@ -7,7 +7,7 @@ Currently there is no check when uploading that the file does not already exist.
 
 
 Usage
-_____
+-----
 
 Single tag:
 {field_name} will output the url of the first file.

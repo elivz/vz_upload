@@ -61,7 +61,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			}
 			$out .= $SD->row(array(
 							$SD->label('settings_destination'),
-							$SD->select('vz_upload_dest', '1', $dests)
+							$SD->select('vz_upload_dest', $field_settings['vz_upload_dest'], $dests)
 							));
 		}
 		else
@@ -123,7 +123,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		
 		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
-		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
+		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/upload.php');
 		
 		$allow_multiple = isset($field_settings['vz_upload_multiple']);
 
@@ -140,7 +140,6 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'rollover': true, 'width': 100, 'height': 25,
 		'script': '".$script_path."',
 		'folder': '".$upload_path."',
-		'fileDesc': 'Image Files',
 		'fileExt': '".$field_settings['vz_upload_types']."',
 		'multi': ".(($allow_multiple) ? "true" : "false" ).",
 		'auto': true,
