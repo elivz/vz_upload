@@ -101,6 +101,22 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	{
 		global $DB, $DSP;
 		
+		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
+		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
+		
+		// List out all the uploaded files
+		$uploadCount = -1;
+		$field_data = explode(' ', $field_data);
+		foreach ($field_data as $file)
+		{
+			$rowSwitch = ($uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
+			$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$uploadCount."]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."_delete[".$uploadCount."]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
+			$uploadCount++;
+		}
+		
+		$out .= '</tbody></table>';
+		$out .= '<input type="file" id="vz_upload_'.$field_name.'" />';
+		
 		// Get the upload directory
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
@@ -109,7 +125,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
 		$this->insert_js("jQuery(document).ready(function() {
-	var uploadCount = -1;
+	var uploadCount = ".$uploadCount.";
 	jQuery('#vz_upload_".$field_name."').fileUpload({
 		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
 		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
@@ -138,11 +154,6 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	});
 ");
 		
-		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
-		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
-		$out .= '</tbody></table>';
-		$out .= '<input type="file" id="vz_upload_'.$field_name.'" />';
-		
 		return $out;
 	}
 
@@ -155,7 +166,8 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function save_field($field_data, $field_settings)
 	{
-		
+		// Convert the array to a space-delimited list
+		return implode(' ', $field_data);
 	}
 
 }
