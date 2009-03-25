@@ -144,11 +144,13 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'multi': ".(($allow_multiple) ? "true" : "false" ).",
 		'auto': true,
 		'onComplete': function (event, queueID, fileObj, response, data) {
-			uploadCount++;
-			rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-			" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').attr('disabled','disabled').filter(':checkbox').attr('checked', 'checked');" : "") . "
-			jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
-			jQuery('#".$field_name."_list').show();
+			if (jQuery('input[value='+fileObj.name+']', '#".$field_name."_list').length == 0) {
+				uploadCount++;
+				rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
+				" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').attr('disabled','disabled').filter(':checkbox').attr('checked', 'checked');" : "") . "
+				jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
+				jQuery('#".$field_name."_list').show();
+			}
 		},
 		'onError': function (a, b, c, d) {
         	if (d.status == 404)
