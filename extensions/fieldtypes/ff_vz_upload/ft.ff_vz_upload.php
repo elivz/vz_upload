@@ -105,7 +105,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
 		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
 		$uploadCount = -1;
-		if (is_array($field_data)) 
+		if (isset($field_data)) 
 		{
 			$field_data = explode(' ', $field_data);
 			foreach ($field_data as $file)
@@ -167,6 +167,8 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function save_field($field_data, $field_settings)
 	{
+		global $DB;
+		
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		
 		// See if they checked "delete" for any of them
