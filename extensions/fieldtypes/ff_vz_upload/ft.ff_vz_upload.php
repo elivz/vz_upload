@@ -100,24 +100,25 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	function display_field($field_name, $field_data, $field_settings)
 	{
 		global $DB, $DSP;
-		
+
+		// List out all the uploaded files in a table
 		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
 		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
-		
-		// List out all the uploaded files
 		$uploadCount = -1;
-		$field_data = explode(' ', $field_data);
-		foreach ($field_data as $file)
+		if (is_array($field_data)) 
 		{
-			$rowSwitch = ($uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-			$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$uploadCount."]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."_delete[".$uploadCount."]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
-			$uploadCount++;
+			$field_data = explode(' ', $field_data);
+			foreach ($field_data as $file)
+			{
+				$uploadCount++;
+				$rowSwitch = ($uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
+				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$uploadCount."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."[".$uploadCount."][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
+			}
 		}
-		
 		$out .= '</tbody></table>';
 		$out .= '<input type="file" id="vz_upload_'.$field_name.'" />';
 		
-		// Get the upload directory
+		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
 
@@ -138,7 +139,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'onComplete': function (event, queueID, fileObj, response, data) {
 			uploadCount++;
 			rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-			jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."_delete[\"+uploadCount+\"]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
+			jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
 		},
 		'onError': function (a, b, c, d) {
         	if (d.status == 404)
@@ -166,8 +167,21 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function save_field($field_data, $field_settings)
 	{
+		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
+		
+		// See if they checked "delete" for any of them
+		foreach ($field_data as $file)
+		{
+			if (isset($file[1]))
+			{
+				// Delete the file
+				$targetFile =  str_replace('//','/',$upload_path.$file[0]);
+				print($targetFile);
+			}
+			$files[] = $file[0];
+		}
 		// Convert the array to a space-delimited list
-		return implode(' ', $field_data);
+		return implode(' ', $files);
 	}
 
 }
