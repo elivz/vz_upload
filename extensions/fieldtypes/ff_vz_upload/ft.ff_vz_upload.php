@@ -119,7 +119,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			}
 		}
 		$out .= '</tbody></table>';
-		$out .= '<input type="file" id="'.$field_name.'_btn" />';
+		$out .= '<div id="'.$field_name.'_btn">You must have JavaScript enabled to upload files.</div>';
 		
 		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
@@ -147,7 +147,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			if (jQuery('input[value='+fileObj.name+']', '#".$field_name."_list').length == 0) {
 				uploadCount++;
 				rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
-				" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').attr('disabled','disabled').filter(':checkbox').attr('checked', 'checked');" : "") . "
+				" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').addClass('highlight').filter(':checkbox').attr('checked', 'checked').hide();" : "") . "
 				jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
 				jQuery('#".$field_name."_list').show();
 			}
