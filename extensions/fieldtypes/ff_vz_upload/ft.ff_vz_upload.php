@@ -99,17 +99,18 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function display_field($field_name, $field_data, $field_settings)
 	{
-		global $DB;
+		global $DB, $DSP;
 		
 		// Get the upload directory
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
 
-		// Include the accessory files
+		// Include the styles and scripts
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
-		$this->insert_js("$(document).ready(function() {
-	$('#vz_upload_".$field_name."').fileUpload({
+		$this->insert_js("jQuery(document).ready(function() {
+	var uploadCount = -1;
+	jQuery('#vz_upload_".$field_name."').fileUpload({
 		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
 		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
 		'script': '".$script_path."',
@@ -118,25 +119,29 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		'fileExt': '".$field_settings['vz_upload_types']."',
 		'multi': ".(isset($field_settings['vz_upload_multiple']) ? 'true' : 'false').",
 		'auto': true,
+		'onComplete': function (event, queueID, fileObj, response, data) {
+			uploadCount++;
+			rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
+			jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."_delete[\"+uploadCount+\"]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
+		},
 		'onError': function (a, b, c, d) {
-         if (d.status == 404)
-            alert('Could not find upload script. Use a path relative to: ".getcwd()."');
-         else if (d.type === 'HTTP')
-            alert('error '+d.type+': '+d.status);
-         else if (d.type ==='File Size')
-            alert(c.name+' '+d.type+' Limit: '+Math.round(d.sizeLimit/1024)+'KB');
-         else
-            alert('error '+d.type+': '+d.text);
-}
+        	if (d.status == 404)
+				alert('Could not find upload script. Use a path relative to: ".getcwd()."');
+        	else if (d.type === 'HTTP')
+				alert('error '+d.type+': '+d.status);
+        	else if (d.type ==='File Size')
+				alert(c.name+' '+d.type+' Limit: '+Math.round(d.sizeLimit/1024)+'KB');
+			else
+				alert('error '+d.type+': '+d.text);
+			}
+		});
 	});
-});
 ");
 		
-		$out = '<table>';
-		$out .= '<thead><tr><td>File Name</td><td>Delete</td></tr></thead>';
-		$out .= '<tr><td></td><td><input type="checkbox" name="ff_vz_upload_'.$field_name.'_delete" id="ff_vz_upload_'.$field_name.'_delete" /></td></tr>';
-		$out .= '</table>';
-		$out .= '<input type="file" name="'.$field_name.'" id="vz_upload_'.$field_name.'" />';
+		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
+		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
+		$out .= '</tbody></table>';
+		$out .= '<input type="file" id="vz_upload_'.$field_name.'" />';
 		
 		return $out;
 	}
@@ -150,7 +155,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	function save_field($field_data, $field_settings)
 	{
-		print_r($field_data);
+		
 	}
 
 }
