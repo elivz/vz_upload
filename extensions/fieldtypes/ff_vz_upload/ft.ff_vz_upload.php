@@ -119,30 +119,37 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			}
 		}
 		$out .= '</tbody></table>';
-		$out .= '<input type="file" id="vz_upload_'.$field_name.'" />';
+		$out .= '<input type="file" id="'.$field_name.'_btn" />';
 		
 		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'/ff_vz_upload/uploadify/upload.php');
+		
+		$allow_multiple = isset($field_settings['vz_upload_multiple']);
 
 		// Include the styles and scripts
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
 		$this->insert_js("jQuery(document).ready(function() {
 	var uploadCount = ".$uploadCount.";
-	jQuery('#vz_upload_".$field_name."').fileUpload({
+	if (uploadCount < 0) { jQuery('#".$field_name."_list').hide(); }
+	jQuery('#".$field_name."_btn').fileUpload({
 		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
 		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
+		'buttonImg': FT_URL+'ff_vz_upload/uploadify/button.png',
+		'rollover': true, 'width': 100, 'height': 25,
 		'script': '".$script_path."',
 		'folder': '".$upload_path."',
 		'fileDesc': 'Image Files',
 		'fileExt': '".$field_settings['vz_upload_types']."',
-		'multi': ".(isset($field_settings['vz_upload_multiple']) ? 'true' : 'false').",
+		'multi': ".(($allow_multiple) ? "true" : "false" ).",
 		'auto': true,
 		'onComplete': function (event, queueID, fileObj, response, data) {
 			uploadCount++;
 			rowSwitch = (uploadCount % 2) ? 'tableCellTwo' : 'tableCellOne';
+			" . ((!$allow_multiple) ? "jQuery(':input', '#".$field_name."_list tbody').attr('disabled','disabled').filter(':checkbox').attr('checked', 'checked');" : "") . "
 			jQuery('#".$field_name."_list').append(\"<tr><td class='\"+rowSwitch+\"'><input type='text' readonly='readonly' name='".$field_name."[\"+uploadCount+\"][0]' style='border:none;background:transparent' value='\"+fileObj.name+\"' /></td><td class='\"+rowSwitch+\"'><input type='checkbox' name='".$field_name."[\"+uploadCount+\"][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>\");
+			jQuery('#".$field_name."_list').show();
 		},
 		'onError': function (a, b, c, d) {
         	if (d.status == 404)
@@ -189,8 +196,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				$files[] = $file[0];
 			}
 		}
+		
 		// Convert the array to a space-delimited list
-		return implode(' ', $files);
+		return (isset($files)) ? implode(' ', $files) : '';
 	}
 	
 
