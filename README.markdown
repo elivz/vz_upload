@@ -24,8 +24,9 @@ Tag pair:
 Example
 -------
 
-<ul>
-{files}
-	<li><img src="{file_url}" alt="File {count} of {total_results}" /></li>
-{/files}
-</ul>
+
+	<ul>
+	{files}
+		<li><img src="{file_url}" alt="File {count} of {total_results}" /></li>
+	{/files}
+	</ul>
