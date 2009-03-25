@@ -105,9 +105,12 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
 		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
 		$uploadCount = -1;
-		if (isset($field_data)) 
+		if ($field_data) 
 		{
+			// Split the saved data out into an array
 			$field_data = explode(' ', $field_data);
+			
+			// Cycle through each item and put it in a table row
 			foreach ($field_data as $file)
 			{
 				$uploadCount++;
@@ -188,6 +191,59 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		}
 		// Convert the array to a space-delimited list
 		return implode(' ', $files);
+	}
+	
+
+	/**
+	 * Display Tag
+	 *
+	 * @param  array   $params          Name/value pairs from the opening tag
+	 * @param  string  $tagdata         Chunk of tagdata between field tag pairs
+	 * @param  string  $field_data      Currently saved field value
+	 * @param  array   $field_settings  The field's settings
+	 * @return string  relationship references
+	 */
+	function display_tag($params, $tagdata, $field_data, $field_settings)
+	{
+		global $DB, $TMPL;
+		$upload_url = $DB->query("SELECT url FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['url'];
+		
+		$out = '';
+		
+		if ($field_data) 
+		{
+			// Split the saved data out into an array
+			$field_data = explode(' ', $field_data);
+			
+			if (!$tagdata)
+			{
+				// Single tag: only output the first file
+				$out = str_replace('//','/',$upload_url.$field_data[0]);
+			}
+			else
+			{
+				// Tag pair: output each file in turn
+				$count = 0;
+				foreach($field_data as $file)
+				{
+					// Copy $tagdata
+					$file_tagdata = $tagdata;
+					
+					// Swap out the variables
+					$file_tagdata = $TMPL->swap_var_single('file_name', $file, $file_tagdata);
+					$file_tagdata = $TMPL->swap_var_single('file_url', str_replace('//','/',$upload_url.$file), $file_tagdata);
+					$file_tagdata = $TMPL->swap_var_single('total_results', count($field_data), $file_tagdata);
+					$file_tagdata = $TMPL->swap_var_single('count', $count+1, $file_tagdata);
+
+					$out .= $file_tagdata;
+
+					$count++;
+				}
+				
+			}
+		}
+		
+		return $out;
 	}
 
 }
