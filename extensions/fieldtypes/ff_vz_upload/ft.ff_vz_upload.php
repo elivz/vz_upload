@@ -113,7 +113,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			{
 				$upload_count++;
 				$rowSwitch = ($upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
-				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='checkbox' name='".$field_name."[".$upload_count."][1]' class='ff_vz_upload_".$field_name."_delete' /></td></tr>";
+				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='hidden' name='".$field_name."[".$upload_count."][1]' /><input type='checkbox' value='del' /></td></tr>";
 			}
 		}
 		$out .= '</tbody></table>';
@@ -150,7 +150,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// See if they checked "delete" for any of them
 		foreach ($field_data as $file)
 		{
-			if (isset($file[1]))
+			if ($file[1] == 'del')
 			{
 				// Delete the file
 				$targetFile =  str_replace('//','/',$upload_path.$file[0]);
