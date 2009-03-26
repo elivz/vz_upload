@@ -20,7 +20,10 @@ function setupVzUpload (field_name, script_path, upload_path, upload_count, allo
 				var rowSwitch = (upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
 				
 				// If only one file is allowed, mark the others for deletion
-				if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody').attr('disabled','disabled').filter(':checkbox').attr('checked', 'checked');
+				if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody')
+					.css('textDecoration','strikethrough')
+					.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
+					.prev().val('del');
 				
 				// Add a row to the list of files
 				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
