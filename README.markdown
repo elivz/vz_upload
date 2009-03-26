@@ -32,7 +32,7 @@ Example
 
 
 To-Do
-_____
+-----
 
 - Check if the file is already on the server and offer to rename
 - Add icons/thumnails to the list of files
