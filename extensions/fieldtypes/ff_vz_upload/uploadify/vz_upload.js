@@ -11,7 +11,7 @@ function setupVzUpload (field_name, script_path, upload_path, upload_count, allo
 		'script': script_path,
 		'folder': upload_path,
 		'fileExt': file_types,
-		'multi': ((allow_multiple) ? "true" : "false" ),
+		'multi': allow_multiple,
 		'auto': true,
 		'onComplete': function (event, queueID, fileObj, response, data) {
 			// Check if this file is already in the list
