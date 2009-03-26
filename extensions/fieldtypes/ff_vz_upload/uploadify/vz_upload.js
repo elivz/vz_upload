@@ -1,7 +1,8 @@
 function setupVzUpload (field_name, script_path, upload_path, upload_count, allow_multiple, file_types) {
-
+	// Hide the list of files if it's empty
 	if (upload_count < 0) { jQuery('#'+field_name+'_list').hide(); }
 
+	// Start the Uploadifier
 	jQuery('#'+field_name+'_btn').fileUpload({
 		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',
 		'cancelImg': FT_URL+'ff_vz_upload/uploadify/cancel.png',
