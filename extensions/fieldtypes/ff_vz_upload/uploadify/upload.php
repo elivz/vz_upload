@@ -5,12 +5,11 @@ if (!empty($_FILES)) {
 	$targetPath = $_GET['folder'] . '/';
 	$targetFile =  str_replace('//','/',$targetPath) . $_FILES['Filedata']['name'];
 	
-	// Uncomment the following line if you want to make the directory if it doesn't exist
+	// Create the directory if it doesn't exist
 	mkdir(str_replace('//','/',$targetPath), 0755, true);
 	
 	move_uploaded_file($tempFile,$targetFile);
 }
 	
 echo '1';
-
 ?>

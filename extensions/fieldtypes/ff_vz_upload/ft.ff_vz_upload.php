@@ -122,8 +122,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		
 		// Get the server paths we will need later
 		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
-		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/upload.php');
-		
+		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/');
 		$allow_multiple = isset($field_settings['vz_upload_multiple']);
 
 		// Include the styles and scripts
@@ -132,7 +131,6 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$this->include_js('uploadify/vz_upload.js');
 		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_path.'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
 	
-		
 		return $out;
 	}
 

@@ -5,7 +5,7 @@
 $fileArray = array();
 foreach ($_POST as $key => $value) {
 	if ($key != 'folder') {
-		if (file_exists($_POST['folder'] . '/' . $value)) {
+		if (file_exists(str_replace('//','/',$_POST['folder'] . '/') . $value)) {
 			$fileArray[$key] = $value;
 		}
 	}
