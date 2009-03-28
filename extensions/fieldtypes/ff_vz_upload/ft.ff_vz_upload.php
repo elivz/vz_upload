@@ -119,7 +119,22 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			{
 				$upload_count++;
 				$rowSwitch = ($upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
-				$out .= "<tr><td class='".$rowSwitch."' style='width:50px'><img src='".$upload_url.$file."' alt='Thumbnail' width='50' /></td><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='hidden' name='".$field_name."[".$upload_count."][1]' /><input type='checkbox' value='del' /></td></tr>";
+				
+				// Get the thumbnail or icon
+				$file_ext = preg_replace('/^.*\./', '', $file);
+				$img = "";
+				if (array_search($file_ext, array('jpg','jpeg','png','gif'))) 
+				{  // Show thumbnail
+					$img = "<img src='".$upload_url.$file."' alt='Thumbnail' width='40' />";
+				}
+				elseif ($file_ext != '')
+				{  // Show file-type icon
+					$icon = (is_file(FT_PATH.'ff_vz_upload/icons/'.$file_ext.'.png')) ? FT_URL.'ff_vz_upload/icons/'.$file_ext.'.png' : FT_URL.'ff_vz_upload/icons/unknown.png';
+					$img = "<img src='".$icon."' alt='Icon' width='16' />";
+				}
+				
+				// Generate the html
+				$out .= "<tr><td class='".$rowSwitch."' width='40'>".$img."</td><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='hidden' name='".$field_name."[".$upload_count."][1]' /><input type='checkbox' value='del' /></td></tr>";
 			}
 		}
 		$out .= '</tbody></table>';

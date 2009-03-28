@@ -25,8 +25,19 @@ function setupVzUpload (field_name, script_path, upload_path, upload_url, upload
 					.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
 					.prev().val('del');
 				
+				// Get the thumbnail or icon
+				var file_ext = fileObj.name.split('.').pop();
+				if (file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'png' || file_ext == 'gif') 
+				{  	// Show thumbnail
+					var img = "<img src='"+upload_url+fileObj.name+"' alt='Thumbnail' width='40' />";
+				}
+				else
+				{   // Show file-type icon
+					var img = "<img src='"+FT_URL+"ff_vz_upload/icons/"+file_ext+".png' alt='Icon' width='16' />";
+				}
+
 				// Add a row to the list of files
-				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'><img src='"+upload_url+fileObj.name+"' alt='Thumnail' width='50' /></td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
+				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'>"+img+"</td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
 				// Make sure the file list is visible
 				jQuery('#'+field_name+'_list').show();
 			}
