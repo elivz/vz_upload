@@ -5,6 +5,11 @@ Uploadify v1.6.0
 Copyright (C) 2009 by Ronnie Garcia
 Co-developed by Travis Nickels
 */
+
+.vz_upload_list input {
+	width: 90%;
+}
+
 .fileUploadQueueItem {
 	background-color: #F5F5F5;
 	border: 3px solid #E5E5E5;

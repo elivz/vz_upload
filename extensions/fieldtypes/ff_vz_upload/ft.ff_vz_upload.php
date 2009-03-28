@@ -99,10 +99,16 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	{
 		global $DB, $DSP;
 
+		// Get the server paths we will need later
+		$upload_prefs = $DB->query("SELECT server_path, url FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1");
+		$upload_path = $upload_prefs->row['server_path'];
+		$upload_url = $upload_prefs->row['url'];
+		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/');
+
 		// List out all the uploaded files in a table
-		$out = '<table id="'.$field_name.'_list" class="tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
-		$out .= '<thead><tr><td class="tableHeading">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
 		$upload_count = -1;
+		$out = '<table id="'.$field_name.'_list" class="vz_upload_list tableBorder" style="width:50%" cellspacing="0" cellpadding="0">';
+		$out .= '<thead><tr><td class="tableHeading" colspan="2">File Name</td><td class="tableHeading" style="width:20%">Delete</td></tr></thead><tbody>';
 		if ($field_data) 
 		{
 			// Split the saved data out into an array
@@ -113,23 +119,20 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			{
 				$upload_count++;
 				$rowSwitch = ($upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
-				$out .= "<tr><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='hidden' name='".$field_name."[".$upload_count."][1]' /><input type='checkbox' value='del' /></td></tr>";
+				$out .= "<tr><td class='".$rowSwitch."' style='width:50px'><img src='".$upload_url.$file."' alt='Thumbnail' width='50' /></td><td class='".$rowSwitch."'><input type='text' readonly='readonly' name='".$field_name."[".$upload_count."][0]' style='border:none;background:transparent' value='".$file."' /></td><td class='".$rowSwitch."'><input type='hidden' name='".$field_name."[".$upload_count."][1]' /><input type='checkbox' value='del' /></td></tr>";
 			}
 		}
 		$out .= '</tbody></table>';
 		$out .= '<div id="'.$field_name.'_btn">You must have JavaScript enabled to upload files.</div>';
 		
 		
-		// Get the server paths we will need later
-		$upload_path = $DB->query("SELECT server_path FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1")->row['server_path'];
-		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/');
 		$allow_multiple = isset($field_settings['vz_upload_multiple']);
 
 		// Include the styles and scripts
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
 		$this->include_js('uploadify/vz_upload.js');
-		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_path.'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
+		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_path.'", "'.$upload_url.'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
 	
 		return $out;
 	}

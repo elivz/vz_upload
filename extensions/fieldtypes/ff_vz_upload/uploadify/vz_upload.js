@@ -1,4 +1,4 @@
-function setupVzUpload (field_name, script_path, upload_path, upload_count, allow_multiple, file_types) {
+function setupVzUpload (field_name, script_path, upload_path, upload_url, upload_count, allow_multiple, file_types) {
 	// Hide the list of files if it's empty
 	if (upload_count < 0) { jQuery('#'+field_name+'_list').hide(); }
 
@@ -26,7 +26,7 @@ function setupVzUpload (field_name, script_path, upload_path, upload_count, allo
 					.prev().val('del');
 				
 				// Add a row to the list of files
-				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
+				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'><img src='"+upload_url+fileObj.name+"' alt='Thumnail' width='50' /></td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
 				// Make sure the file list is visible
 				jQuery('#'+field_name+'_list').show();
 			}
