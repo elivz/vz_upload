@@ -19,8 +19,8 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 */
 	var $info = array(
 		'name'        => 'VZ Upload',
-		'version'     => 0.6,
-		'desc'        => 'Upload files',
+		'version'     => 0.7,
+		'desc'        => 'Upload files directly through the Publish page',
 		'docs_url'    => 'http://elivz.com'
 	);
 
@@ -121,9 +121,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				$rowSwitch = ($upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
 				
 				// Get the thumbnail or icon
-				$file_ext = preg_replace('/^.*\./', '', $file);
+				$file_ext = strtolower(preg_replace('/^.*\./', '', $file));
 				$img = "";
-				if (array_search($file_ext, array('jpg','jpeg','png','gif'))) 
+				if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
 				{  // Show thumbnail
 					$img = "<img src='".$upload_url.$file."' alt='Thumbnail' width='40' />";
 				}
