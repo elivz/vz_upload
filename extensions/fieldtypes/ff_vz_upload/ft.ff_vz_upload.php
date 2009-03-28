@@ -47,19 +47,15 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$out = $SD->block('field_settings');
 		
 		// Get the file upload destinations
-		$results = $DB->query("SELECT id, name FROM exp_upload_prefs ORDER BY name ASC");
-		
-		if ($results->num_rows > 0)
+		$dests = $this->_get_upload_dests();
+		if ($dests)
 		{
 			// If there are any upload destinations, put them in a select box...
-			$dests = array();
-			foreach($results->result as $row)
-			{
-				$dests += array($row['id'] => $row['name']);    
-			}
+			$dests = $this->_get_upload_dests();
+			$upload_dest = isset($field_settings['vz_upload_dest']) ? $field_settings['vz_upload_dest'] : '';
 			$out .= $SD->row(array(
 							$SD->label('settings_destination'),
-							$SD->select('vz_upload_dest', $field_settings['vz_upload_dest'], $dests)
+							$SD->select('vz_upload_dest', $upload_dest, $dests)
 							));
 		}
 		else
@@ -73,8 +69,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 						$SD->label('settings_types', 'settings_types_example'),
 						$SD->text('vz_upload_types', $types)
 						));
-		$multiple = isset($field_settings['vz_upload_multiple']) ? ' checked="checked"' : '';	
+		
 		// Allow multiple uploads?
+		$multiple = isset($field_settings['vz_upload_multiple']) ? ' checked="checked"' : '';
 		$out .= $SD->row(array(
 						'<label for="vz_upload_multiple" class="defaultBold">'.$LANG->line('settings_multiple_uploads').'</label>',
 						'<input type="checkbox" name="vz_upload_multiple" id="vz_upload_multiple"'.$multiple.' />'
@@ -85,7 +82,56 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		// Return the settings block
 		return array('cell2' => $out);
 	}
+
+
+    /**
+	 * Display Cell Settings
+	 * 
+	 * @param  array  $cell_settings  The cell's settings
+	 * @return array  Settings HTML (cell1, cell2, rows)
+	 */
+	function display_cell_settings($cell_settings)
+	{
+		global $DSP, $LANG, $DB;
+		$LANG->fetch_language_file('ff_vz_upload');
 	
+		// Initialize a new instance of SettingsDisplay
+		$SD = new Fieldframe_SettingsDisplay();
+		$out = '';
+		
+		// Get the file upload destinations
+		$dests = $this->_get_upload_dests();
+		if ($dests)
+		{
+			// If there are any upload destinations, put them in a select box...
+			$upload_dest = isset($field_settings['vz_upload_dest']) ? $field_settings['vz_upload_dest'] : '';
+			$out .= '<label class="itemWrapper">'
+					. $DSP->qdiv('defaultBold', $LANG->line('settings_destination'))
+					. $SD->select('vz_upload_dest', $upload_dest, $dests)
+					. '</label>';
+		}
+		else
+		{
+			$out .= '<p class="highlight">'.$LANG->line('no_destinations_found').'</p>';
+		}
+		
+		// Which file types are allowed?
+		$types = isset($field_settings['vz_upload_types']) ? $field_settings['vz_upload_types'] : '*.jpg;*.jpeg;*.png;*.gif';
+		$out .= '<label class="itemWrapper">'
+				. $DSP->qdiv('defaultBold', $LANG->line('settings_types'))
+				. $SD->text('vz_upload_types', $types)
+				. '</label>';
+		
+		// Allow multiple uploads?
+		$multiple = isset($field_settings['vz_upload_multiple']) ? 1 : 0;
+		$out .= '<label class="itemWrapper">'
+				. $DSP->qdiv('defaultBold', $DSP->input_checkbox('vz_upload_multiple', 'multiple', $multiple, 'style="width:auto"').$LANG->line('settings_multiple_uploads'))
+				. '</label>';
+		
+		// Return the settings block
+		return $out;
+
+	}
 	
 	/**
 	 * Display Field
@@ -98,11 +144,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	function display_field($field_name, $field_data, $field_settings)
 	{
 		global $DB, $DSP;
-
+		
 		// Get the server paths we will need later
-		$upload_prefs = $DB->query("SELECT server_path, url FROM exp_upload_prefs WHERE id = ".$field_settings['vz_upload_dest']." LIMIT 1");
-		$upload_path = $upload_prefs->row['server_path'];
-		$upload_url = $upload_prefs->row['url'];
+		$upload_prefs = $this->_get_upload_paths($field_settings['vz_upload_dest']);
 		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/');
 
 		// List out all the uploaded files in a table
@@ -125,7 +169,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				$img = "";
 				if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
 				{  // Show thumbnail
-					$img = "<img src='".$upload_url.$file."' alt='Thumbnail' width='40' />";
+					$img = "<img src='".$upload_prefs['url'].$file."' alt='Thumbnail' width='40' />";
 				}
 				elseif ($file_ext != '')
 				{  // Show file-type icon
@@ -147,11 +191,25 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		$this->include_css('uploadify/vz_upload.css');
 		$this->include_js('uploadify/jquery.uploadify.js');
 		$this->include_js('uploadify/vz_upload.js');
-		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_path.'", "'.$upload_url.'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
+		$this->insert_js('jQuery(document).ready(function() { setupVzUpload("'.$field_name.'", "'.$script_path.'", "'.$upload_prefs['path'].'", "'.$upload_prefs['url'].'", "'.$upload_count.'", "'.$allow_multiple.'", "'.$field_settings['vz_upload_types'].'"); });');
 	
 		return $out;
 	}
+	
 
+	/**
+	 * Display Cell
+	 * 
+	 * @param  string  $cell_name      The field's name
+	 * @param  mixed   $cell_data      The field's current value
+	 * @param  array   $cell_settings  The field's settings
+	 * @return string  The cell's HTML
+	 */
+	function display_cell($cell_name, $cell_data, $cell_settings)
+	{
+		if ($cell_name)	return $this->display_field($cell_name, $cell_data, $cell_settings);
+	}
+	
 
 	/**
 	 * Save Field
@@ -236,6 +294,48 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		}
 		
 		return $out;
+	}
+
+	
+	/*
+	 * Get Upload Destinations
+	 */
+	function _get_upload_dests() 
+	{
+		global $DB;
+		$dests = array();
+		
+		$results = $DB->query("SELECT id, name FROM exp_upload_prefs ORDER BY name ASC");
+		
+		if ($results->num_rows > 0)
+		{
+			// If there are any upload destinations, put them in array...
+			foreach($results->result as $row)
+			{
+				$dests += array($row['id'] => $row['name']);    
+			}
+		}
+		
+		return $dests;
+	}
+	
+
+	/*
+	 * Get a single Upload Destination's path
+	 *
+	 * @param int	$field_id
+	 */
+	function _get_upload_paths($field_id) 
+	{
+		global $DB;
+		
+		if (!isset($field_id)) return false;
+		
+		$results = $DB->query("SELECT server_path, url FROM exp_upload_prefs WHERE id = ".$field_id." LIMIT 1");
+		$upload_paths['path'] = $results->row['server_path'];
+		$upload_paths['url'] = $results->row['url'];
+		
+		return $upload_paths;
 	}
 
 }
