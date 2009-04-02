@@ -122,16 +122,11 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				. $SD->text('vz_upload_types', $types)
 				. '</label>';
 		
-		// Allow multiple uploads?
-		$multiple = isset($cell_settings['vz_upload_multiple']) ? 1 : 0;
-		$out .= '<label class="itemWrapper">'
-				. $DSP->qdiv('defaultBold', $DSP->input_checkbox('vz_upload_multiple', 'y', $multiple, 'style="width:auto"').$LANG->line('settings_multiple_uploads'))
-				. '</label>';
-		
 		// Return the settings block
 		return $out;
 
 	}
+	
 	
 	/**
 	 * Display Field
@@ -206,12 +201,51 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	 * @return string  The cell's HTML
 	 */
 	function display_cell($cell_name, $cell_data, $cell_settings)
-	{
+	{		
+		global $DSP;
+		
+		// Set default values for the preview display in Edit Custom Field 
 		$defaults['vz_upload_dest'] = key($this->_get_upload_dests());
 		$defaults['vz_upload_types'] = '';
-		$cell_settings = array_merge($cell_settings, $defaults);
+		$cell_settings = array_merge($defaults, $cell_settings);
 		
-		return $this->display_field($cell_name, $cell_data, $cell_settings);
+		// Get the server paths we will need later
+		$upload_prefs = $this->_get_upload_paths($cell_settings['vz_upload_dest']);
+		$script_path = str_replace(getcwd().'/', '', FT_PATH.'ff_vz_upload/uploadify/');
+
+		$upload_count = -1;
+		$out = '';
+		
+		// If there is an uploaded file, display it
+		if ($cell_data) 
+		{			
+			$upload_count++;
+			
+			// Get the thumbnail or icon
+			$file_ext = strtolower(preg_replace('/^.*\./', '', $cell_data));
+			$img = "";
+			if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
+			{  // Show thumbnail
+				$img = "<img src='".$upload_prefs['url'].$cell_data."' alt='Thumbnail' width='40' />";
+			}
+			elseif ($file_ext != '')
+			{  // Show file-type icon
+				$icon = (is_file(FT_PATH.'ff_vz_upload/icons/'.$file_ext.'.png')) ? FT_URL.'ff_vz_upload/icons/'.$file_ext.'.png' : FT_URL.'ff_vz_upload/icons/unknown.png';
+				$img = "<img src='".$icon."' alt='Icon' width='16' />";
+			}
+			
+			// Generate the html
+			$out .= "<div>".$img."<input type='text' readonly='readonly' name='".$cell_name."[0]' style='border:none;background:transparent' value='".$cell_data."' /><label style='float:right'><input type='hidden' name='".$cell_name."[1]' /><input type='checkbox' value='del' /> Delete</label></div>";
+		}
+		$out .= '<span id="'.$cell_name.'_btn" class='.$cell_name.'>You must have JavaScript enabled to upload files.</span>';
+
+		// Include the styles and scripts
+		$this->include_css('uploadify/vz_upload.css');
+		$this->include_js('uploadify/jquery.uploadify.js');
+		$this->include_js('uploadify/vz_upload.js');
+		$this->insert_js('var vz_upload_cell['.$cell_name.'] = {"script" : "'.$script_path.'", "upload_path" : "'.$upload_prefs['path'].'", "upload_url" : "'.$upload_prefs['url'].'", "upload_count" : "'.$upload_count.'", "file_types" : "'.$cell_settings['vz_upload_types'].'"};');
+	
+		return $out;
 	}
 	
 
@@ -285,7 +319,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			if (!$tagdata)
 			{
 				// Single tag: only output the first file
-				$out = str_replace('//','/',$upload_url.$field_data[0]);
+				$out = $upload_url.$field_data[0];
 			}
 			else
 			{
@@ -298,7 +332,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 					
 					// Swap out the variables
 					$file_tagdata = $TMPL->swap_var_single('file_name', $file, $file_tagdata);
-					$file_tagdata = $TMPL->swap_var_single('file_url', str_replace('//','/',$upload_url.$file), $file_tagdata);
+					$file_tagdata = $TMPL->swap_var_single('file_url', $upload_url.$file, $file_tagdata);
 					$file_tagdata = $TMPL->swap_var_single('total_results', count($field_data), $file_tagdata);
 					$file_tagdata = $TMPL->swap_var_single('count', $count+1, $file_tagdata);
 
