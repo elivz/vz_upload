@@ -204,6 +204,8 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 	{		
 		global $DSP;
 		
+		$this->insert_js("$.fn.ffMatrix.onDisplayCell['ff_vz_upload'] = function(td) { setupVzUploadCell(td); }");
+		
 		// Set default values for the preview display in Edit Custom Field 
 		$defaults['vz_upload_dest'] = key($this->_get_upload_dests());
 		$defaults['vz_upload_types'] = '';
