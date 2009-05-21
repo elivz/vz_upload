@@ -162,8 +162,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				// Get the thumbnail or icon
 				$file_ext = strtolower(preg_replace('/^.*\./', '', $file));
 				$img = "";
+				$img_exts = array('jpg','jpeg','png','gif');
 				
-				if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
+				if (in_array($file_ext, $img_exts)) 
 				{  // Show thumbnail
 					$img = "<img src='".$upload_prefs['url'].$file."' alt='Thumbnail' width='40' />";
 				}
@@ -227,7 +228,9 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 			// Get the thumbnail or icon
 			$file_ext = strtolower(preg_replace('/^.*\./', '', $cell_data));
 			$img = "";
-			if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
+            $img_exts = array('jpg','jpeg','png','gif');
+				
+			if (in_array($file_ext, $img_exts)) 
 			{  // Show thumbnail
 				$img = "<img src='".$upload_prefs['url'].$cell_data."' alt='Thumbnail' width='40' />";
 			}
