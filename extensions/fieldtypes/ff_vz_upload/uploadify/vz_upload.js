@@ -14,33 +14,30 @@ function setupVzUpload (field_name, script_path, upload_path, upload_url, upload
 		'multi': allow_multiple,
 		'auto': true,
 		'onComplete': function (event, queueID, fileObj, response, data) {
-			// Check if this file is already in the list
-			if (jQuery('input[value='+fileObj.name+']', '#'+field_name+'_list').length == 0) {
-				upload_count++;
-				var rowSwitch = (upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
-				
-				// If only one file is allowed, mark the others for deletion
-				if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody')
-					.css('textDecoration','strikethrough')
-					.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
-					.prev().val('del');
-				
-				// Get the thumbnail or icon
-				var file_ext = fileObj.name.split('.').pop();
-				if (file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'png' || file_ext == 'gif') 
-				{  	// Show thumbnail
-					var img = "<img src='"+upload_url+fileObj.name+"' alt='Thumbnail' width='40' />";
-				}
-				else
-				{   // Show file-type icon
-					var img = "<img src='"+FT_URL+"ff_vz_upload/icons/"+file_ext+".png' alt='Icon' width='16' />";
-				}
-
-				// Add a row to the list of files
-				jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'>"+img+"</td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
-				// Make sure the file list is visible
-				jQuery('#'+field_name+'_list').show();
-			}
+            upload_count++;
+            var rowSwitch = (upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
+            
+            // If only one file is allowed, mark the others for deletion
+            if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody')
+            	.css('textDecoration','strikethrough')
+            	.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
+            	.prev().val('del');
+            
+            // Get the thumbnail or icon
+            var file_ext = fileObj.name.split('.').pop();
+            if (file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'png' || file_ext == 'gif') 
+            {  	// Show thumbnail
+            	var img = "<img src='"+upload_url+fileObj.name+"' alt='Thumbnail' width='40' />";
+            }
+            else
+            {   // Show file-type icon
+            	var img = "<img src='"+FT_URL+"ff_vz_upload/icons/"+file_ext+".png' alt='Icon' width='16' />";
+            }
+            
+            // Add a row to the list of files
+            jQuery('#'+field_name+'_list').append("<tr><td class='"+rowSwitch+"'>"+img+"</td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+response+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></tr>");
+            // Make sure the file list is visible
+            jQuery('#'+field_name+'_list').show();
 		},
 		'onError': function (a, b, c, d) {
         	if (d.status == 404)
@@ -82,33 +79,30 @@ function setupVzUploadCell (td) {
 		'multi': false,
 		'auto': true,
 		'onComplete': function (event, queueID, fileObj, response, data) {
-			// Check if this file is already in the list
-			if (jQuery('input[value='+fileObj.name+']', '#'+field_name+'_list').length == 0) {
-				upload_count++;
-				var rowSwitch = (upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
-				
-				// If only one file is allowed, mark the others for deletion
-				if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody')
-					.css('textDecoration','strikethrough')
-					.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
-					.prev().val('del');
-				
-				// Get the thumbnail or icon
-				var file_ext = fileObj.name.split('.').pop();
-				if (file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'png' || file_ext == 'gif') 
-				{  	// Show thumbnail
-					var img = "<img src='"+upload_url+fileObj.name+"' alt='Thumbnail' width='40' />";
-				}
-				else
-				{   // Show file-type icon
-					var img = "<img src='"+FT_URL+"ff_vz_upload/icons/"+file_ext+".png' alt='Icon' width='16' />";
-				}
-
-				// Add a row to the list of files
-				jQuery('#'+field_name+'_list').append("<div><td class='"+rowSwitch+"'>"+img+"</td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+fileObj.name+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></div>");
-				// Make sure the file list is visible
-				jQuery('#'+field_name+'_list').show();
-			}
+            upload_count++;
+            var rowSwitch = (upload_count % 2) ? 'tableCellTwo' : 'tableCellOne';
+            
+            // If only one file is allowed, mark the others for deletion
+            if (!allow_multiple) jQuery(':input', '#'+field_name+'_list tbody')
+            	.css('textDecoration','strikethrough')
+            	.filter(':checkbox').attr({'checked': 'checked', 'disabled': 'disabled'})
+            	.prev().val('del');
+            
+            // Get the thumbnail or icon
+            var file_ext = fileObj.name.split('.').pop();
+            if (file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'png' || file_ext == 'gif') 
+            {  	// Show thumbnail
+            	var img = "<img src='"+upload_url+fileObj.name+"' alt='Thumbnail' width='40' />";
+            }
+            else
+            {   // Show file-type icon
+            	var img = "<img src='"+FT_URL+"ff_vz_upload/icons/"+file_ext+".png' alt='Icon' width='16' />";
+            }
+            
+            // Add a row to the list of files
+            jQuery('#'+field_name+'_list').append("<div><td class='"+rowSwitch+"'>"+img+"</td><td class='"+rowSwitch+"'><input type='text' readonly='readonly' name='"+field_name+"["+upload_count+"][0]' style='border:none;background:transparent' value='"+response+"' /></td><td class='"+rowSwitch+"'><input type='hidden' name='"+field_name+"["+upload_count+"][1]' /><input type='checkbox' value='del' /></td></div>");
+            // Make sure the file list is visible
+            jQuery('#'+field_name+'_list').show();
 		},
 		'onError': function (a, b, c, d) {
         	if (d.status == 404)

@@ -162,6 +162,7 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 				// Get the thumbnail or icon
 				$file_ext = strtolower(preg_replace('/^.*\./', '', $file));
 				$img = "";
+				
 				if (array_search($file_ext, array('jpg','jpeg','png','gif')) == false) 
 				{  // Show thumbnail
 					$img = "<img src='".$upload_prefs['url'].$file."' alt='Thumbnail' width='40' />";
@@ -269,9 +270,12 @@ class Ff_vz_upload extends Fieldframe_Fieldtype {
 		{
 			if ($file[1] == 'del')
 			{
-				// Delete the file
-				$targetFile =  str_replace('//','/',$upload_path.$file[0]);
-				@unlink($targetFile);
+                // Check if we are using the file anywhere else
+                if (!in_array($file[0], $field_data)) {
+				    // Delete the file
+				    $targetFile =  str_replace('//','/',$upload_path.$file[0]);
+				    @unlink($targetFile);
+				}
 			}
 			else
 			{
