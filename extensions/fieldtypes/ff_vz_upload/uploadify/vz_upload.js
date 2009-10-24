@@ -65,8 +65,8 @@ function setupVzUpload (field_name, script_path, upload_path, upload_url, upload
 function setupVzUploadCell (td) {
 	// Get the settings
 	var field_id = $('span', td).attr('class');
-	var settings = 
-	alert(field_id);
+	//var settings = 
+
 	// Start the Uploadifier
 	jQuery('#'+field_name+'_btn').fileUpload({
 		'uploader': FT_URL+'ff_vz_upload/uploadify/uploader.swf',

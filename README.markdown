@@ -1,7 +1,7 @@
 VZ Upload for FieldFrame
 ========================
 
-BETA VERSION! USE WITH CARE!
+THIS FIELDTYPE IS NO LONGER BEING MAINTANINED. [NGen's File Field](http://www.ngenworks.com/software/ee/ngen-file-field/) is more stable and I am now using it for my own projects.
 
 Currently there is no check when uploading that the file does not already exist. If you upload the same file twice from different weblog entries and then delete one, they will both be deleted!
 
